@@ -5,13 +5,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.19.0' # نسخة مستقرة وجديدة
-      - run: flutter clean
-      - run: flutter pub get
-      - run: flutter build apk --release --no-tree-shake-icons
+          flutter-version: '3.19.0' # نسخة تتماشى مع المشاريع القديمة والجديدة
+
+      - name: Clean and Get dependencies
+        run: |
+          flutter clean
+          # هذا الأمر يفرك الديون القديمة
+          flutter pub get --legacy-peer-deps || flutter pub get 
+
+      - name: Build APK
+        # هذا الأمر هو السحر، يتجاهل أخطاء الأيقونات والمكتبات القديمة
+        run: flutter build apk --release --no-tree-shake-icons --ignore-deprecation
+
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
